@@ -1,19 +1,16 @@
-import { createServer } from "http";
 import { Server } from "socket.io";
+import { createServer } from "http";
 
 let httpServer: Server | any = null;
 let isRunning: boolean = false;
-
+let io : Server | any | null = null
 /**
  * Obtiene la instancia única del servidor HTTP.
  * @returns {Server} Servidor HTTP.
  */
 export function getServer(): Server {
-  if (!httpServer) {
-    httpServer = createServer();
-  }
-
-  const io = new Server(httpServer, {
+  httpServer = createServer();
+  io = new Server(httpServer, {
     cors: {
       origin: "*",
     },
@@ -29,13 +26,20 @@ export function startServer(port: number = 3001): void {
   console.log(`Estado de isRunning desde startServer ${isRunning}`);
 
   if (!isRunning) {
-    httpServer = getServer();
+    const io = getServer();
 
-    const io = new Server(httpServer, {/*opciones */});
     io.on("connection", (socket) => {
       console.log("Cliente conectado:", socket.id);
+    
+      socket.on("mensaje", (data) => {
+        console.log("Mensaje recibido:", data);
+        const mensaje = "Mensaje de " + socket.id + " : " + data
+        io.emit("mensaje", mensaje);
+      });
 
-
+      socket.on("disconnect", () => {
+        console.log("Cliente desconectado:", socket.id);
+      });
     });
 
     httpServer.listen(port, () => {
@@ -57,6 +61,7 @@ export function stopServer(): void {
     return;
   }
 
+  io.close()
   httpServer.close(() => {
     console.log("Servidor detenido. (stopServer)");
     isRunning = false;
