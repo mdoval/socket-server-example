@@ -1,5 +1,6 @@
-import { startHttpServer, stopHttpServer, getHttpServerStatus } from "@/actions/server-socket-action";
+import { startHttpServer, stopHttpServer, getHttpServerStatus, desconectarSockets } from "@/actions/server-socket-action";
 import { Button } from "@/components/ui/button";
+import { disconectSockets } from "@/lib/server";
 
 export default async function Home() {
   const status = await getHttpServerStatus()
@@ -25,6 +26,11 @@ export default async function Home() {
         <form action={stopHttpServer}>
           <Button type="submit" variant="outline">
             Apagar Servidor
+          </Button>
+        </form>
+        <form action={desconectarSockets}>
+          <Button type="submit" variant="outline">
+            Desconectar Sockets
           </Button>
         </form>
       </div>

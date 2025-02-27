@@ -3,7 +3,9 @@ import { createServer } from "http";
 
 let httpServer: Server | any = null;
 let isRunning: boolean = false;
-let io : Server | any | null = null
+let io: Server | any | null = null;
+const users: Users = {};
+
 /**
  * Obtiene la instancia única del servidor HTTP.
  * @returns {Server} Servidor HTTP.
@@ -30,10 +32,15 @@ export function startServer(port: number = 3001): void {
 
     io.on("connection", (socket) => {
       console.log("Cliente conectado:", socket.id);
-    
+
+      socket.on("setUsername", (username: string) => {
+        users[socket.id] = username;
+        console.log(`Usuario ${username} conectado con ID ${socket.id}`);
+      });
+
       socket.on("mensaje", (data) => {
         console.log("Mensaje recibido:", data);
-        const mensaje = "Mensaje de " + socket.id + " : " + data
+        const mensaje = "Mensaje de " + socket.id + " : " + data;
         io.emit("mensaje", mensaje);
       });
 
@@ -61,12 +68,21 @@ export function stopServer(): void {
     return;
   }
 
-  io.close()
+  io.close();
   httpServer.close(() => {
     console.log("Servidor detenido. (stopServer)");
     isRunning = false;
     httpServer = null;
   });
+}
+
+export function disconectSockets(): void {
+  if (!isRunning || !httpServer) {
+    console.log("El servidor esta detenido no se pueden eliminar los sockets.");
+    return;
+  }
+  io.disconectSockets();
+  console.log("Sockets desconectados");
 }
 
 /**

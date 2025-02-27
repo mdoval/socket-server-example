@@ -1,6 +1,6 @@
 "use server";
 
-import { startServer, stopServer, getServerStatus } from "@/lib/server";
+import { startServer, stopServer, getServerStatus, disconectSockets } from "@/lib/server";
 import { redirect } from "next/navigation";
 
 export async function startHttpServer() {
@@ -23,4 +23,8 @@ export async function getHttpServerStatus() {
   //console.log(`Estado de getServerStatus desde getHttpServerStatus ${status}`)
   //console.log(`Estado de is Running desde getHttpServerStatus ${estado}`)
   return { status:estado };
+}
+
+export async function desconectarSockets() {
+  disconectSockets()
 }
